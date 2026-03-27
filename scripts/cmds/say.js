@@ -1,46 +1,47 @@
-const axios = require("axios");
 const fs = require("fs-extra");
 const path = require("path");
+const edgeTTS = require("edge-tts");
 
 module.exports = {
   config: {
     name: "say",
-    version: "1.0.0",
-    author: "You",
+    version: "4.0.0",
+    author: "Anime Voice",
     countDown: 0,
     role: 0,
-    description: "Anime girl voice TTS",
+    description: "Cute anime girl voice",
     category: "media"
   },
 
   onStart: async function ({ api, event, args }) {
     try {
       const text = args.join(" ");
+
       if (!text) {
-        return api.sendMessage("❌ | Write something", event.threadID);
+        return api.sendMessage("❌ | Write something", event.threadID, event.messageID);
       }
 
-      const filePath = path.join(__dirname, "cache", `say_${Date.now()}.mp3`);
+      const filePath = path.join(__dirname, "cache", `anime_${Date.now()}.mp3`);
 
-      // Anime TTS API (free)
-      const url = `https://api.ryzendesu.vip/api/tts?text=${encodeURIComponent(text)}&voice=anime`;
+      // 💖 Cute anime style voice
+      const voice = "en-US-JennyNeural";
 
-      const res = await axios({
-        url,
-        method: "GET",
-        responseType: "arraybuffer"
+      await edgeTTS.save({
+        text: text,
+        voice: voice,
+        file: filePath
       });
 
-      fs.writeFileSync(filePath, Buffer.from(res.data));
-
       return api.sendMessage({
-        body: "🎧 Anime Girl Voice:",
+        body: "🎀 Cute Anime Voice:",
         attachment: fs.createReadStream(filePath)
-      }, event.threadID, () => fs.unlinkSync(filePath));
+      }, event.threadID, () => {
+        fs.unlinkSync(filePath);
+      }, event.messageID);
 
     } catch (err) {
       console.log(err);
-      api.sendMessage("❌ Error generating voice", event.threadID);
+      return api.sendMessage("❌ Voice error", event.threadID, event.messageID);
     }
   }
 };
