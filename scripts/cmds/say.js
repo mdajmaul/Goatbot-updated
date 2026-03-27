@@ -5,11 +5,11 @@ const path = require("path");
 module.exports = {
   config: {
     name: "say",
-    version: "2.0.0",
+    version: "1.0.0",
     author: "You",
     countDown: 0,
     role: 0,
-    description: "Cute anime girl voice (Bangla + English)",
+    description: "Anime girl voice TTS",
     category: "media"
   },
 
@@ -22,8 +22,8 @@ module.exports = {
 
       const filePath = path.join(__dirname, "cache", `say_${Date.now()}.mp3`);
 
-      // Better TTS (female soft voice)
-      const url = `https://api.ryzendesu.vip/api/tts2?text=${encodeURIComponent(text)}&voice=en-US-AriaNeural`;
+      // Anime TTS API (free)
+      const url = `https://api.ryzendesu.vip/api/tts?text=${encodeURIComponent(text)}&voice=anime`;
 
       const res = await axios({
         url,
@@ -34,13 +34,13 @@ module.exports = {
       fs.writeFileSync(filePath, Buffer.from(res.data));
 
       return api.sendMessage({
-        body: "🎧 Cute Voice:",
+        body: "🎧 Anime Girl Voice:",
         attachment: fs.createReadStream(filePath)
       }, event.threadID, () => fs.unlinkSync(filePath));
 
     } catch (err) {
       console.log(err);
-      api.sendMessage("❌ Voice error", event.threadID);
+      api.sendMessage("❌ Error generating voice", event.threadID);
     }
   }
 };
