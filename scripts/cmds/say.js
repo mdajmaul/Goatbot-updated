@@ -1,47 +1,175 @@
-# cute_voice_reader.py
-import pyttsx3
-import sys
+const axios = require('axios');
 
-def speak_text(text):
-    # Initialize TTS engine
-    engine = pyttsx3.init()
-    
-    # Get available voices
-    voices = engine.getProperty('voices')
-    
-    # Try to select a cute/female voice
-    selected_voice = None
-    for voice in voices:
-        if "female" in voice.name.lower() or "zira" in voice.name.lower() or "samantha" in voice.name.lower():
-            selected_voice = voice.id
-            break
-    if not selected_voice:
-        selected_voice = voices[0].id  # fallback to default
-    
-    engine.setProperty('voice', selected_voice)
-    
-    # Set speech style: cute, clear
-    engine.setProperty('rate', 160)    # speed
-    engine.setProperty('volume', 1.0)  # max volume
-    
-    engine.say(text)
-    engine.runAndWait()
-
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python cute_voice_reader.py <filename>")
-        sys.exit(1)
-
-    file_path = sys.argv[1]
-
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            text = f.read()
-        speak_text(text)
-    except FileNotFoundError:
-        print(f"Error: File '{file_path}' not found.")
-    except Exception as e:
-        print(f"Error: {e}")
-
-if __name__ == "__main__":
-    main()
+module.exports = {
+  config: {
+    name: "say",
+    aliases: [],
+    version: "2.0",
+    author: "AYESHA QUEEN",
+    countDown: 1,
+    role: 0,
+    shortDescription: "say something",
+    longDescription: "",
+    category: "Voice Generator",
+    guide: {
+      vi: "{pn} text ",
+      en: "{pn} text "
+    }
+  },
+  onStart: async function ({ api, message, args, event}) {
+ let lng = "en"
+ let say;
+    if(ln.includes(args[0])){
+ lng = args[0]
+ args.shift()
+ say = encodeURIComponent(args.join(" "))
+ } else{ say = args.join(" ")}
+      try {
+        let url = `https://translate.google.com/translate_tts?ie=UTF-8&tl=${lng}&client=tw-ob&q=${say}`
+message.reply({body:"",
+attachment: await global.utils.getStreamFromURL(url)
+})
+          } catch (e) {
+console.log(e)
+message.reply(`Enter text lmao `) }
+ }
+};
+const ln = [
+ "af",
+ "sq",
+ "ar",
+ "ay",
+ "eu",
+ "bn",
+ "bs",
+ "bg",
+ "my",
+ "ca",
+ "km",
+ "ch",
+ "ce",
+ "hr",
+ "cs",
+ "da",
+ "dv",
+ "nl",
+ "en",
+ "et",
+ "fi",
+ "fr",
+ "de",
+ "el",
+ "gu",
+ "he",
+ "hu",
+ "is",
+ "id",
+ "it",
+ "ja",
+ "jv",
+ "kn",
+ "kr",
+ "ks",
+ "kk",
+ "rw",
+ "kv",
+ "kg",
+ "ko",
+ "kj",
+ "ku",
+ "ky",
+ "lo",
+ "la",
+ "lv",
+ "lb",
+ "li",
+ "ln",
+ "lt",
+ "lu",
+ "mk",
+ "mg",
+ "ms",
+ "ml",
+ "mt",
+ "gv",
+ "mi",
+ "mr",
+ "mh",
+ "ro",
+ "mn",
+ "na",
+ "nv",
+ "nd",
+ "ng",
+ "ne",
+ "se",
+ "no",
+ "nb",
+ "nn",
+ "ii",
+ "oc",
+ "oj",
+ "or",
+ "om",
+ "os",
+ "pi",
+ "pa",
+ "ps",
+ "fa",
+ "pl",
+ "pt",
+ "qu",
+ "rm",
+ "rn",
+ "ru",
+ "sm",
+ "sg",
+ "sa",
+ "sc",
+ "sr",
+ "sn",
+ "sd",
+ "si",
+ "sk",
+ "sl",
+ "so",
+ "st",
+ "nr",
+ "es",
+ "su",
+ "sw",
+ "ss",
+ "sv",
+ "tl",
+ "ty",
+ "tg",
+ "ta",
+ "tt",
+ "te",
+ "th",
+ "bo",
+ "ti",
+ "to",
+ "ts",
+ "tn",
+ "tr",
+ "tk",
+ "tw",
+ "ug",
+ "uk",
+ "ur",
+ "uz",
+ "ve",
+ "vi",
+ "vo",
+ "wa",
+ "cy",
+ "fy",
+ "wo",
+ "xh",
+ "yi",
+ "yo",
+ "za",
+ "zu",
+ "nɪ",
+]
