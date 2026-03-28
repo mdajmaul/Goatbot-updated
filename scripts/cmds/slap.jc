@@ -4,38 +4,37 @@ module.exports = {
   config: {
     name: "slap",
     version: "1.0",
-    author: "your-name",
+    author: "fixed",
     countDown: 5,
     role: 0,
-    shortDescription: "Slap someone 😈",
-    longDescription: "Slap command with anime style image",
+    shortDescription: "Slap someone",
+    longDescription: "Anime slap",
     category: "fun"
   },
 
-  onStart: async function ({ message, event, usersData }) {
+  onStart: async function ({ api, event, usersData }) {
     try {
-      let targetID = event.mentions ? Object.keys(event.mentions)[0] : null;
+      const mention = Object.keys(event.mentions);
 
-      if (!targetID) {
-        return message.reply("😒 কাকে slap দিবা? কাউকে mention করো!");
+      if (mention.length === 0) {
+        return api.sendMessage("😒 কাউকে mention করো!", event.threadID, event.messageID);
       }
 
-      let senderName = await usersData.getName(event.senderID);
-      let targetName = await usersData.getName(targetID);
+      const senderName = await usersData.getName(event.senderID);
+      const targetName = await usersData.getName(mention[0]);
 
-      // random slap image (you can replace later if needed)
-      let imgURL = "https://i.imgur.com/8XGQZkK.jpeg"; // similar anime slap vibe
+      const img = (await axios.get("https://i.imgur.com/8XGQZkK.jpeg", {
+        responseType: "stream"
+      })).data;
 
-      let img = (await axios.get(imgURL, { responseType: "stream" })).data;
-
-      message.reply({
+      api.sendMessage({
         body: `💥 ${senderName} slapped ${targetName}!`,
         attachment: img
-      });
+      }, event.threadID, event.messageID);
 
-    } catch (e) {
-      console.log(e);
-      message.reply("❌ Error occurred!");
+    } catch (err) {
+      console.log(err);
+      api.sendMessage("❌ Error!", event.threadID, event.messageID);
     }
   }
 };
