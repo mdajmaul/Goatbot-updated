@@ -1,9 +1,9 @@
 module.exports.config = {
     name: "autoreact",
-    version: "4.0.0",
+    version: "3.0.0",
     author: "Ajmaul",
     role: 0,
-    description: "Auto react with multi emoji effect (owner only, no command react)",
+    description: "Auto react with multi emoji effect (owner only)",
     category: "system",
     countDown: 0
 };
@@ -33,28 +33,18 @@ module.exports.onStart = async ({ api, event, args }) => {
 module.exports.onChat = async ({ api, event }) => {
     try {
         const threadID = event.threadID;
-        const message = event.body;
 
-        // system OFF
         if (!autoReactStatus[threadID]) return;
-
-        // only owner messages
         if (event.senderID !== OWNER_ID) return;
-
-        // ignore bot's own messages
         if (event.senderID == api.getCurrentUserID()) return;
 
-        // ignore commands starting with /
-        if (message && message.startsWith("/")) return;
-
-        // emoji list
         const reacts = ["🌷", "😻", "✨", "🕊️", "👍", "🐦", "🪶", "💀", "🚬", "💐"];
 
-        // single real reaction
+        // random single real reaction
         const randomReact = reacts[Math.floor(Math.random() * reacts.length)];
         api.setMessageReaction(randomReact, event.messageID, () => {}, true);
 
-        // fake multi reaction message
+        // send all emojis as message (visual multi reaction)
         const emojiString = reacts.join(" ");
         api.sendMessage(emojiString, threadID);
 
