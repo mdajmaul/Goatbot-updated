@@ -4,7 +4,7 @@
         "value": "1",
         "domain": ".facebook.com",
         "hostOnly": false,
-        "path": "/",
+        "path": "/", 
         "secure": true,
         "httpOnly": true,
         "sameSite": "lax",
