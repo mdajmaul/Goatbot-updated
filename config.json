@@ -21,13 +21,13 @@
     "ignoreCommand": []
   },
   "adminBot": [
-    "61588349794704"
+    "61573263082742"
   ],
   "premiumUsers": [
-    "61588349794704"
+    "61573263082742"
   ],
   "devUsers": [
-    "61588349794704"
+    "61573263082742"
   ],
   "notes_premiumUsers": "List of user IDs with premium access (role 3)",
   "notes_devUsers": "List of developer IDs with full access (role 4)",
