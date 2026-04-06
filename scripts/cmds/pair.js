@@ -1,196 +1,197 @@
-module.exports.config = {
-  name: "pair",
-  version: "1.0.5",
-  hasPermssion: 0,
-  credits: "🐥Ajamul islam 🐥",
-  description: "দুইজন ইউজারকে মজার কম্প্যাটিবিলিটি স্কোরসহ পেয়ার করে",
-  commandCategory: "🩵love🩵",
-  usages: "[@mention/reply/UID/link/name]",
-  cooldowns: 5,
-  dependencies: {
-      "axios": "",
-      "fs-extra": "",
-      "jimp": "",
-      "path": ""
-  }
-};
+const axios = require("axios");
+const fs = require("fs-extra");
+module.exports = {
+  config: {
+    name: "pair",
+    countDown: 20,
+    role: 0,
+    shortDescription: {
+      en: "Get to know your partner",
+    },
+    longDescription: {
+      en: "Know your destiny and know who you will complete your life with",
+    },
+    category: "LOVE",
+    guide: {
+      en: "{pn} [tag someone or leave blank]",
+    }
+  },
+  onStart: async function ({ api, args, message, event, threadsData, usersData }) {
+    const { loadImage, createCanvas } = require("canvas");
+    let pathImg = __dirname + "/assets/background.png";
+    let pathAvt1 = __dirname + "/assets/any.png";
+    let pathAvt2 = __dirname + "/assets/avatar.png";
 
-async function getUIDByFullName(api, threadID, body) {
-  if (!body.includes("@")) return null;
+    const botID = api.getCurrentUserID();
+    let id1 = event.senderID;
+    let id2;
 
-  const match = body.match(/@(.+)/);
-  if (!match) return null;
-
-  const targetName = match[1].trim().toLowerCase().replace(/\s+/g, " ");
-  const threadInfo = await api.getThreadInfo(threadID);
-  const users = threadInfo.userInfo || [];
-
-  const user = users.find(u => {
-      if (!u.name) return false;
-      const fullName = u.name.trim().toLowerCase().replace(/\s+/g, " ");
-      return fullName === targetName;
-  });
-
-  return user ? user.id : null;
-}
-
-module.exports.onLoad = async () => {
-  const { resolve } = global.nodemodule["path"];
-  const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
-  const { downloadFile } = global.utils;
-
-  const dirMaterial = resolve(__dirname, "cache", "canvas");
-  const path = resolve(dirMaterial, "rx.png");
-
-  if (!existsSync(dirMaterial)) mkdirSync(dirMaterial, { recursive: true });
-  if (!existsSync(path))
-      await downloadFile(
-          "https://i.postimg.cc/K82GdJjf/r07qxo-R-Download.jpg",
-          path
-      );
-
-  const lockedCredit = Buffer.from("clggQWRkdWxsYWg=", "base64").toString("utf-8");
-  if (module.exports.config.credits !== lockedCredit) {
-      module.exports.config.credits = lockedCredit;
-      global.creditChanged = true;
-  }
-};
-
-// ===== ছবি বানানোর ফাংশন =====
-async function makeImage({ one, two }) {
-  const fs = global.nodemodule["fs-extra"];
-  const path = global.nodemodule["path"];
-  const axios = global.nodemodule["axios"];
-  const jimp = global.nodemodule["jimp"];
-  const __root = path.resolve(__dirname, "cache", "canvas");
-
-  let pairing_img = await jimp.read(__root + "/rx.png");
-  // পাথ ঠিক করা হয়েছে (টেমপ্লেট স্ট্রিং)
-  let pathImg = `${__root}/pair_${one}_${two}.png`;
-  let avatarOne = `${__root}/avt_${one}.png`;
-  let avatarTwo = `${__root}/avt_${two}.png`;
-
-  // টোকেন সহ প্রোফাইল ছবি ডাউনলোড (width/height সহ)
-  const accessToken = "6628568379|c1e620fa708a1d5696fb991c1bde5662"; // আপনার দেওয়া টোকেন
-  let avt1 = (await axios.get(
-      `https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=${accessToken}`,
-      { responseType: "arraybuffer" }
-  )).data;
-  fs.writeFileSync(avatarOne, avt1);
-
-  let avt2 = (await axios.get(
-      `https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=${accessToken}`,
-      { responseType: "arraybuffer" }
-  )).data;
-  fs.writeFileSync(avatarTwo, avt2);
-
-  let circleOne = await jimp.read(await circle(avatarOne));
-  let circleTwo = await jimp.read(await circle(avatarTwo));
-
-  pairing_img
-      .composite(circleOne.resize(137, 137), 95, 57)
-      .composite(circleTwo.resize(137, 137), 505, 205);
-
-  let raw = await pairing_img.getBufferAsync("image/png");
-  fs.writeFileSync(pathImg, raw);
-
-  fs.unlinkSync(avatarOne);
-  fs.unlinkSync(avatarTwo);
-
-  return pathImg;
-}
-
-async function circle(image) {
-  const jimp = require("jimp");
-  image = await jimp.read(image);
-  image.circle();
-  return await image.getBufferAsync("image/png");
-}
-
-module.exports.run = async function ({ api, event, args }) {
-  const fs = require("fs-extra");
-  const { threadID, messageID, senderID } = event;
-
-  if (global.creditChanged) {
-      api.sendMessage("c̸r̸e̸d̸i̸t̸ b̸y̸ R̸a̸h̸a̸t̸ I̸s̸l̸a̸m̸", threadID);
-      global.creditChanged = false;
-  }
-
-  let partnerID, partnerName;
-
-  if (event.type === "message_reply") {
-      partnerID = event.messageReply.senderID;
-  } else if (args[0]) {
-      if (args[0].includes(".com/")) {
-          partnerID = await api.getUID(args[0]);
-      } else if (args.join(" ").includes("@")) {
-          partnerID = Object.keys(event.mentions || {})[0]
-              || await getUIDByFullName(api, threadID, args.join(" "));
-      } else {
-          partnerID = args[0];
+    if (Object.keys(event.mentions).length > 0) {
+      id2 = Object.keys(event.mentions)[0];
+      if (id2 == id1 || id2 == botID) return message.reply("You cannot pair with yourself or bot!");
+    } else {
+      const ThreadInfo = await api.getThreadInfo(event.threadID);
+      const all = ThreadInfo.userInfo;
+      let gender1;
+      for (let c of all) {
+        if (c.id == id1) gender1 = c.gender;
       }
-  } else {
-      const threadInfo = await api.getThreadInfo(threadID);
-      const list = threadInfo.participantIDs.filter(id => id !== senderID);
-      partnerID = list[Math.floor(Math.random() * list.length)];
-  }
+      let candidates = [];
+      for (let u of all) {
+        if (u.id !== id1 && u.id !== botID) {
+          if (gender1 == "MALE" && u.gender == "FEMALE") candidates.push(u.id);
+          else if (gender1 == "FEMALE" && u.gender == "MALE") candidates.push(u.id);
+          else if (!gender1 || (gender1 != "MALE" && gender1 != "FEMALE")) candidates.push(u.id);
+        }
+      }
+      if (candidates.length == 0) return message.reply("No suitable match found.");
+      id2 = candidates[Math.floor(Math.random() * candidates.length)];
+    }
 
-  if (!partnerID)
-      return api.sendMessage("❌কাউকে ম্যানশন করো নাই", threadID, messageID);
+    let name1 = await usersData.getName(id1);
+    let name2 = await usersData.getName(id2);
 
-  if (partnerID === senderID)
-      return api.sendMessage("❌নিজের ম্যাসেজ এ রিপ্লাই দিলে হবে না আবাল😐\nঅন্য জনের মেসেজ রিপ্লাই দাও", threadID, messageID);
+    const compatibilityRates = ["0", "-1", "99.99", "-99", "-100", "101", "0.01"];
+    let randomRate = Math.random() < 0.9 ? (Math.floor(Math.random() * 100) + 1) : compatibilityRates[Math.floor(Math.random() * compatibilityRates.length)];
+    
+    const backgrounds = [
+      "https://i.ibb.co/RBRLmRt/Pics-Art-05-14-10-47-00.jpg"
+    ];
 
-  const senderInfo = await api.getUserInfo(senderID);
-  const partnerInfo = await api.getUserInfo(partnerID);
+    let getAvtmot = (
+      await axios.get(`https://graph.facebook.com/${id1}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: "arraybuffer" })
+    ).data;
+    fs.writeFileSync(pathAvt1, Buffer.from(getAvtmot, "utf-8"));
 
-  const senderName = senderInfo[senderID]?.name || "তুমি";
-  partnerName = partnerInfo[partnerID]?.name || "সে";
+    let getAvthai = (
+      await axios.get(`https://graph.facebook.com/${id2}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: "arraybuffer" })
+    ).data;
+    fs.writeFileSync(pathAvt2, Buffer.from(getAvthai, "utf-8"));
 
-  const percentages = ['0%','17%','19%','21%','37%','48%','52%','62%','67%','76%','83%','96%','99%','100%'];
-  const matchRate = percentages[Math.floor(Math.random() * percentages.length)];
+    let getbackground = (
+      await axios.get(backgrounds[0], { responseType: "arraybuffer" })
+    ).data;
+    fs.writeFileSync(pathImg, Buffer.from(getbackground, "utf-8"));
 
-  const titles = [
-      "🥰 সফল পেয়ারিং!",
-      "💖 একদম পারফেক্ট ম্যাচ!",
-      "💘 ভালোবাসার সংযোগ!",
-      "💞 মিলের ফলাফল!",
-      "✨ সম্পর্কের সম্ভাবনা!"
-  ];
+    let baseImage = await loadImage(pathImg);
+    let baseAvt1 = await loadImage(pathAvt1);
+    let baseAvt2 = await loadImage(pathAvt2);
+    let canvas = createCanvas(baseImage.width, baseImage.height);
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(baseAvt1, 111, 175, 330, 330);
+    ctx.drawImage(baseAvt2, 1018, 173, 330, 330);
+    const imageBuffer = canvas.toBuffer();
+    fs.writeFileSync(pathImg, imageBuffer);
 
-  const comments = {
-      '100%': '💯 একদম পারফেক্ট ম্যাচ! আত্মার সঙ্গী!',
-      '99%': '😍 প্রায় নিখুঁত!',
-      '96%': '❤️‍🔥 দারুণ কেমিস্ট্রি!',
-      '83%': '💖 খুব ভালো ম্যাচ!',
-      '76%': '💕 ভালো মিল!',
-      '67%': '😊 ভালো সম্ভাবনা!',
-      '62%': '🙂 মোটামুটি মিল!',
-      '52%': '😐 ৫০-৫০ চান্স!',
-      '48%': '🤔 একটু কঠিন!',
-      '37%': '😅 কম মিল!',
-      '21%': '😬 খুব কম মিল!',
-      '19%': '😕 প্রায় নেই!',
-      '17%': '😔 ভালো না!',
-      '0%': '😭 একদমই মিল নেই!'
-  };
+    fs.removeSync(pathAvt1);
+    fs.removeSync(pathAvt2);
 
-  const title = titles[Math.floor(Math.random() * titles.length)];
-  const comment = comments[matchRate];
-
-  const imgPath = await makeImage({ one: senderID, two: partnerID });
-
-  return api.sendMessage({
-      body:
-          `${title}\n\n` +
-          `💌 তোমাদের দুজনের জন্য সুন্দর ভবিষ্যৎ কামনা করি!\n` +
-          `📊 মিলের হার: ${matchRate}\n` +
-          `💬 ${comment}\n\n` +
-          `👤 ${senderName} + 👤 ${partnerName} = ❤️‍🔥`,
-      attachment: fs.createReadStream(imgPath),
+    return api.sendMessage({
+      body: `『💗』Congratulations ${name1}『💗』\n『❤️』Looks like your destiny brought you together with ${name2}『❤️』\n『🔗』Your link percentage is ${randomRate}%『🔗』`,
       mentions: [
-          { id: senderID, tag: senderName },
-          { id: partnerID, tag: partnerName }
-      ]
-  }, threadID, () => fs.unlinkSync(imgPath), messageID);
+        { tag: `${name1}`, id: id1 },
+        { tag: `${name2}`, id: id2 }
+      ],
+      attachment: fs.createReadStream(pathImg)
+    }, event.threadID, () => fs.unlinkSync(pathImg), event.messageID);
+  }
+};const axios = require("axios");
+const fs = require("fs-extra");
+module.exports = {
+  config: {
+    name: "pair",
+    countDown: 10,
+    role: 0,
+    shortDescription: {
+      en: "Get to know your partner",
+    },
+    longDescription: {
+      en: "Know your destiny and know who you will complete your life with",
+    },
+    category: "LOVE",
+    guide: {
+      en: "{pn} [tag someone or leave blank]",
+    }
+  },
+  onStart: async function ({ api, args, message, event, threadsData, usersData }) {
+    const { loadImage, createCanvas } = require("canvas");
+    let pathImg = __dirname + "/assets/background.png";
+    let pathAvt1 = __dirname + "/assets/any.png";
+    let pathAvt2 = __dirname + "/assets/avatar.png";
+
+    const botID = api.getCurrentUserID();
+    let id1 = event.senderID;
+    let id2;
+
+    if (Object.keys(event.mentions).length > 0) {
+      id2 = Object.keys(event.mentions)[0];
+      if (id2 == id1 || id2 == botID) return message.reply("You cannot pair with yourself or bot!");
+    } else {
+      const ThreadInfo = await api.getThreadInfo(event.threadID);
+      const all = ThreadInfo.userInfo;
+      let gender1;
+      for (let c of all) {
+        if (c.id == id1) gender1 = c.gender;
+      }
+      let candidates = [];
+      for (let u of all) {
+        if (u.id !== id1 && u.id !== botID) {
+          if (gender1 == "MALE" && u.gender == "FEMALE") candidates.push(u.id);
+          else if (gender1 == "FEMALE" && u.gender == "MALE") candidates.push(u.id);
+          else if (!gender1 || (gender1 != "MALE" && gender1 != "FEMALE")) candidates.push(u.id);
+        }
+      }
+      if (candidates.length == 0) return message.reply("No suitable match found.");
+      id2 = candidates[Math.floor(Math.random() * candidates.length)];
+    }
+
+    let name1 = await usersData.getName(id1);
+    let name2 = await usersData.getName(id2);
+
+    const compatibilityRates = ["0", "-1", "99.99", "-99", "-100", "101", "0.01"];
+    let randomRate = Math.random() < 0.9 ? (Math.floor(Math.random() * 100) + 1) : compatibilityRates[Math.floor(Math.random() * compatibilityRates.length)];
+    
+    const backgrounds = [
+      "https://i.ibb.co/RBRLmRt/Pics-Art-05-14-10-47-00.jpg"
+    ];
+
+    let getAvtmot = (
+      await axios.get(`https://graph.facebook.com/${id1}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: "arraybuffer" })
+    ).data;
+    fs.writeFileSync(pathAvt1, Buffer.from(getAvtmot, "utf-8"));
+
+    let getAvthai = (
+      await axios.get(`https://graph.facebook.com/${id2}/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: "arraybuffer" })
+    ).data;
+    fs.writeFileSync(pathAvt2, Buffer.from(getAvthai, "utf-8"));
+
+    let getbackground = (
+      await axios.get(backgrounds[0], { responseType: "arraybuffer" })
+    ).data;
+    fs.writeFileSync(pathImg, Buffer.from(getbackground, "utf-8"));
+
+    let baseImage = await loadImage(pathImg);
+    let baseAvt1 = await loadImage(pathAvt1);
+    let baseAvt2 = await loadImage(pathAvt2);
+    let canvas = createCanvas(baseImage.width, baseImage.height);
+    let ctx = canvas.getContext("2d");
+    ctx.drawImage(baseImage, 0, 0, canvas.width, canvas.height);
+    ctx.drawImage(baseAvt1, 111, 175, 330, 330);
+    ctx.drawImage(baseAvt2, 1018, 173, 330, 330);
+    const imageBuffer = canvas.toBuffer();
+    fs.writeFileSync(pathImg, imageBuffer);
+
+    fs.removeSync(pathAvt1);
+    fs.removeSync(pathAvt2);
+
+    return api.sendMessage({
+      body: `『💗』Congratulations ${name1}『💗』\n『❤️』Looks like your destiny brought you together with ${name2}『❤️』\n『🔗』Your link percentage is ${randomRate}%『🔗』`,
+      mentions: [
+        { tag: `${name1}`, id: id1 },
+        { tag: `${name2}`, id: id2 }
+      ],
+      attachment: fs.createReadStream(pathImg)
+    }, event.threadID, () => fs.unlinkSync(pathImg), event.messageID);
+  }
 };
