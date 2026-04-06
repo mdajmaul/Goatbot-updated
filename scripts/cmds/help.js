@@ -1,104 +1,95 @@
-const fs = require("fs-extra");
-const path = require("path");
-
 module.exports = {
 	config: {
 		name: "help",
-		aliases: ["menu", "commands"],
-		version: "4.8",
-		author: "NeoKEX",
-		shortDescription: "Show all available commands",
-		longDescription: "Displays a clean and premium-styled categorized list of commands.",
+		version: "2.0",
+		author: "xalman",
+		countDown: 5,
+		role: 0,
+		shortDescription: "Show all commands",
+		longDescription: "Show full command list",
 		category: "system",
-		guide: "{pn}help [command name]"
+		guide: "{p}help"
 	},
 
-	onStart: async function ({ message, args, prefix }) {
-		const allCommands = global.GoatBot.commands;
-		const categories = {};
+	onStart: async function ({ api, event }) {
 
-		const emojiMap = {
-			ai: "➥", "ai-image": "➥", group: "➥", system: "➥",
-			fun: "➥", owner: "➥", config: "➥", economy: "➥",
-			media: "➥", "18+": "➥", tools: "➥", utility: "➥",
-			info: "➥", image: "➥", game: "➥", admin: "➥",
-			rank: "➥", boxchat: "➥", others: "➥"
-		};
+		const msg = `━━━☠️ 𝗡𝗲𝗼𝗞𝗘𝗫 𝗔𝗜 ☠️━━━
 
-		const cleanCategoryName = (text) => {
-			if (!text) return "others";
-			return text
-				.normalize("NFKD")
-				.replace(/[^\w\s-]/g, "")
-				.replace(/\s+/g, " ")
-				.trim()
-				.toLowerCase();
-		};
+╭──『 ADMIN 』
+× delete
+╰────────────◊
 
-		for (const [name, cmd] of allCommands) {
-			const cat = cleanCategoryName(cmd.config.category);
-			if (!categories[cat]) categories[cat] = [];
-			categories[cat].push(cmd.config.name);
-		}
+╭──『 AI 』
+× ai × genx × metaai × pi × prompt × gpt
+╰────────────◊
 
+╭──『 AI-GENERATED 』
+× nijix
+╰────────────◊
 
-		if (args[0]) {
-			const query = args[0].toLowerCase();
-			const cmd =
-				allCommands.get(query) ||
-				[...allCommands.values()].find((c) => (c.config.aliases || []).includes(query));
-			if (!cmd) return message.reply(`❌ Command "${query}" not found.`);
+╭──『 AI-IMAGE 』
+× art × dalle3 × fluxkontext × fluxpro × imagen4 × supanime × flux10pro × flux11pro × fluxdev × fluxdevlora × fluxkontextpro × fluxkontextproedit × fluxschnell × seedreamv4
+╰────────────◊
 
-			const {
-				name,
-				version,
-				author,
-				guide,
-				category,
-				shortDescription,
-				longDescription,
-				aliases,
-				role 
-			} = cmd.config;
+╭──『 AI-VIDEO 』
+× animate
+╰────────────◊
 
-			const desc =
-				typeof longDescription === "string"
-					? longDescription
-					: longDescription?.en || shortDescription?.en || shortDescription || "No description";
+╭──『 BOX CHAT 』
+× adduser × admin × all × antichangeinfobox × autosetname × badwords × busy × count × filteruser × kick × onlyadminbox × refresh × rules × sendnoti × setname × theme × unsend × warn
+╰────────────◊
 
-			const usage =
-				typeof guide === "string"
-					? guide.replace(/{pn}/g, prefix)
-					: guide?.en?.replace(/{pn}/g, prefix) || `${prefix}${name}`;
+╭──『 CONFIG 』
+× prefix × setalias
+╰────────────◊
 
-						const requiredRole = cmd.config.role !== undefined ? cmd.config.role : 0; 
+╭──『 CONTACTS ADMIN 』
+× callad
+╰────────────◊
 
-			return message.reply(
-				`☠️ 𝗖𝗢𝗠𝗠𝗔𝗡𝗗 𝗜𝗡𝗙𝗢 ☠️\n\n` +
-				`➥ Name: ${name}\n` +
-				`➥ Category: ${category || "Uncategorized"}\n` +
-				`➥ Description: ${desc}\n` +
-				`➥ Aliases: ${aliases?.length ? aliases.join(", ") : "None"}\n` +
-				`➥ Usage: ${usage}\n` +
-				`➥ Permission: ${requiredRole}\n` + 
-				`➥ Author: ${author}\n` +
-				`➥ Version: ${version}`
-			);
-		}
+╭──『 CUSTOM 』
+× setleave × setwelcome × shortcut
+╰────────────◊
 
-		const formatCommands = (cmds) =>
-			cmds.sort().map((cmd) => `× ${cmd}`);
+╭──『 ECONOMY 』
+× balance × balanceBot × bank × daily
+╰────────────◊
 
-		let msg = `━━━☠️ 𝗡𝗲𝗼𝗞𝗘𝗫 𝗔𝗜 ☠️━━━\n`;
-		const sortedCategories = Object.keys(categories).sort();
-		for (const cat of sortedCategories) {
-			const emoji = emojiMap[cat] || "➥";
-			msg += `\n╭──『 ${cat.toUpperCase()} 』\n`; 
-			msg += `${formatCommands(categories[cat]).join(' ')}\n`; 
-			msg += `╰────────────◊\n`;
-		}
-		msg += `\n➥ Use: ${prefix}help [command name] for details\n➥Use: ${prefix}callad to talk with bot admins '_'`;
+╭──『 FUN 』
+× anisearch × emojimix × fakechat × gay × iqtest × jail × nigga × punch × toilet × pair
+╰────────────◊
 
-		return message.reply(msg);
+╭──『 FUN GAME 』
+× slap × slot
+╰────────────◊
+
+╭──『 GAME 』
+× coc × dhbc × guessnumber × maze
+╰────────────◊
+
+╭──『 GROUP 』
+× topexp × grouptag
+╰────────────◊
+
+╭──『 IMAGE 』
+× 4k × 4o × aiphoto × avatar × edit × moon × nanobanana × pinterest × rbg × sorthelp
+╰────────────◊
+
+╭──『 MEDIA 』
+× download × tiktok × youtube × alldl × ytb
+╰────────────◊
+
+╭──『 OWNER 』
+× adminonly × backupdata × cmd × developer × eval × event × getfbstate × hubble × ignoreonlyad × ignoreonlyadbox × jsontomongodb × jsontosqlite × loadconfig × notification × offbot × premium × restart × savetext × setavt × setlang × setrankup × shell × spamban × thread × update × user × whitelist
+╰────────────◊
+
+╭──『 SYSTEM 』
+× file × fork × help × spam × uptime × refresh
+╰────────────◊
+
+➥ Use: !help [command name] for details
+➥ Use: !callad to talk with bot admins '_'`;
+
+		api.sendMessage(msg, event.threadID);
 	}
 };
