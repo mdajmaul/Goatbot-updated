@@ -1,9 +1,9 @@
-FROM node:20-slim
+FROM node:18
 
 WORKDIR /app
 
-COPY package.json ./
-RUN npm install && npm cache clean --force
+COPY package.json package-lock.json* ./
+RUN npm install --omit=dev && npm cache clean --force
 
 COPY . .
 
